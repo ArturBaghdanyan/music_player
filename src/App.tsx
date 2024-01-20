@@ -1,26 +1,22 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { SongList } from './components/song_list';
+import MusicUploadForm from './components/music_upload';
+import { AddAllButton } from './components/addAll_button/index';
+import { PlayAllButton } from './components/playAll_button/index';
 
 function App() {
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <SongList />
+      <div className='buttons'>
+        <AddAllButton />
+        <PlayAllButton />
+      </div>
+      <MusicUploadForm />
     </div>
   );
 }
+
 
 export default App;
