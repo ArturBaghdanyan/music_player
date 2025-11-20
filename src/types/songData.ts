@@ -1,7 +1,7 @@
 export interface Song {
-    songName: string;
-    artistName: string;
-    trackNumber: string;
-    file: any; 
+  id: string;
+  songName: string;
+  artistName: string;
+  trackNumber: number;
+  file: File;
 }
-

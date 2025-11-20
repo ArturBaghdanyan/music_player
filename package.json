@@ -13,9 +13,11 @@
     "@types/uuidv4": "^5.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.5.0",
     "react-scripts": "5.0.1",
     "sass": "^1.70.0",
     "typescript": "^4.9.5",
+    "uuid": "^13.0.0",
     "uuidv4": "^6.2.13",
     "web-vitals": "^2.1.4"
   },

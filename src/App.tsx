@@ -1,22 +1,14 @@
+import MusicUploadForm from "./components/music_upload";
+
 import './App.css';
-import { SongList } from './components/song_list';
-import MusicUploadForm from './components/music_upload';
-import { AddAllButton } from './components/addAll_button/index';
-import { PlayAllButton } from './components/playAll_button/index';
 
 function App() {
-
   return (
     <div className="App">
-      <SongList />
-      <div className='buttons'>
-        <AddAllButton />
-        <PlayAllButton />
-      </div>
+        <h1>Music Player</h1>
       <MusicUploadForm />
     </div>
   );
 }
-
 
 export default App;

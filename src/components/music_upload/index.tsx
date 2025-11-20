@@ -1,105 +1,121 @@
-import React, { ChangeEvent, useState } from 'react';
-import style from './styles.module.scss';
-import { useCard } from '../context/SongContext';
+import { ChangeEvent, useState } from "react";
+import { useCard } from "../../context/SongContext";
+import { v4 as uuidv4 } from "uuid";
+import { Song } from "../../types/songData";
 
+import style from "./styles.module.scss";
+import { AudioPlayer } from "../playMusic/audio";
 
 const MusicUploadForm = () => {
-  const { setSelectedFiles, selectedFiles } = useCard();
+  const {
+    setSelectedFiles,
+    selectedFiles,
+    addSong,
+  } = useCard();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  
-  const API_URL = process.env.REACT_APP_API_URL as any;
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const newFiles = Array.from(event.target.files);
-      // Append new files to the existing selectedFiles array
-      setSelectedFiles([...selectedFiles, ...newFiles]);    
+      const filesWithId = newFiles.map((file) => ({
+        file,
+        id: uuidv4(),
+      }));
+      setSelectedFiles([...selectedFiles, ...filesWithId]);
     }
   };
 
-  const onSubmit = async (files: any) => {
-    console.log('submitted', files);
+  const onSubmit = async (files: { file: File; id: string }[]) => {
     try {
-      const formData = new FormData();
-      // Append each file to the FormData object with a unique key
-      files.forEach((file: any, index: any) => {
-        formData.append(`file${index + 1}`, file);
-      });
-      
-      // Make a POST request to my backend API
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        body: formData,
-      });
-  
-      if (response.ok) {
-        // successful response
-        const responseData = await response.json();
-        console.log('Upload successful.', responseData);
-      } else {
-        // error response
-        const errorData = await response.json();
-        console.error('Upload failed', errorData);
-      }
-    } catch (error) {
-      console.error('Error during file upload:', error);
+      const uploadedSongs: Song[] = files.map((f, index) => ({
+        id: f.id,
+        songName: f.file.name,
+        artistName: "Unknown Artist",
+        trackNumber: index + 1,
+        file: f.file,
+      }));
+
+      const storedSongs = sessionStorage.getItem("songs");
+      let existingSongs: any[] = storedSongs ? JSON.parse(storedSongs) : [];
+
+      existingSongs = [
+        ...existingSongs,
+        ...uploadedSongs.map((s) => ({
+          ...s,
+          fileName: s.file.name,
+        })),
+      ];
+
+      sessionStorage.setItem("songs", JSON.stringify(existingSongs));
+
+      uploadedSongs.forEach((song) => addSong(song));
+
+      console.log("All songs in array:", existingSongs);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const handleUpload = async () => {
     if (selectedFiles.length === 0) {
-      //when the file is not selected, clicking will write the code below
-      setUploadError('Please select a files');
+      setUploadError("Please select a files");
       return;
     }
 
     setIsUploading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       await onSubmit(selectedFiles);
+      setSelectedFiles([]);
       setUploadError(null);
     } catch (error) {
-      setUploadError('Upload failed. Please try again.');
+      setUploadError("Upload failed. Please try again.");
     } finally {
       setIsUploading(false);
     }
   };
 
   return (
-    <form className={style.music_list}>
+    <form className={style.music_list} onSubmit={(e) => e.preventDefault()}>
       <input
-        type="file" 
-        accept=".mp3, .wav" 
-        onChange={handleFileChange} 
+        type="file"
+        accept=".mp3, .wav"
+        onChange={handleFileChange}
         disabled={isUploading}
       />
-       {/* Show upload error if there is any */}
-      {uploadError && <p style={{ color: 'red' }}>{uploadError}</p>}
-
-      {selectedFiles.length > 0 && (
-          <div className={style.music_list_error_message}>
-            <p style={{color: 'red', fontSize: '20px'}}>Selected file:</p>
-            <ul className={style.music_list}>
-              {/* show music name */}
-              {selectedFiles.map((files: any, index: string) => (
-                <li key={index}>{files.name}</li>
-              ))}
-            </ul>
-          </div>
+      {uploadError && (
+        <p className={style.music_list_error_message}>{uploadError}</p>
       )}
-      {/* If there is any, then show "Uploading..." */}
+
+      {selectedFiles.map((fileObj: any) => {
+        const fakeSong: Song = {
+          id: fileObj.id,
+          songName: fileObj.file.name,
+          artistName: "Unknown Artist",
+          trackNumber: 1,
+          file: fileObj.file,
+        };
+
+        return (
+          <div key={fakeSong.id} className={style.music_list_col_item}>
+            <AudioPlayer song={fakeSong} />
+          </div>
+        );
+      })}
+
       {isUploading ? (
         <div>
           <p>Uploading...</p>
         </div>
       ) : (
-        <button 
-          onClick={handleUpload} 
-          disabled={!selectedFiles} 
+        <button
+          type="button"
+          onClick={handleUpload}
+          disabled={!selectedFiles.length}
           className={style.music_list_upload}
         >
-          {selectedFiles ? 'Upload' : 'Choose a file to upload'}
+          Upload
         </button>
       )}
     </form>

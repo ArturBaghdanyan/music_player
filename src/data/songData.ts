@@ -1,9 +1,12 @@
-import { uuid as uuidv4 } from "uuidv4";
 import { Song } from "../types/songData";
+import { v4 } from "uuid";
 
-export const songList: Song[] = [{
-    songName: 'First Song',
-    artistName: 'Artist',
-    trackNumber: uuidv4(),
-    file: new File([''], 'example-song.mp3', { type: 'audio/mp3' }),
-  }];
+export const songList: Song[] = [
+  {
+    id: v4(),
+    songName: "First Song",
+    artistName: "Artist",
+    trackNumber: 1,
+    file: new File([""], "example-song.mp3", { type: "audio/mp3" }),
+  },
+];
